@@ -5,10 +5,10 @@ import { Favorites } from "../target/types/favorites";
 import { startAnchor } from "solana-bankrun";
 import { BankrunProvider } from "anchor-bankrun";
 const IDL = require("../target/idl/favorites.json");
-// import {expect, beforeAll, it, describe} from "bun:test"
+import {expect, beforeAll, it, describe} from "bun:test"
 
 const favoriteAddress = new PublicKey(
-  "AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ"
+  "58J7yWgkR9nBNseNj6TaRa1SHV1DwXPum3JbWNta9c6Z"
 );
 
 describe("favorites", () => {
@@ -35,9 +35,8 @@ describe("favorites", () => {
 
       const favoriteProgram = new Program<Favorites>(
         IDL,
-        favoriteAddress,
-        provider
-      ) as Program<Favorites>;
+        provider  // This is now correct as we're passing the provider, not the address
+      );
       console.log("Program instance created");
 
       const [favoriteAdd] = PublicKey.findProgramAddressSync(
@@ -54,8 +53,6 @@ describe("favorites", () => {
           ["Solana", "Rust", "Anchor"])
         .accounts({
           user: userKeypair.publicKey,
-          favorites: favoriteAdd,
-          systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([userKeypair])
         .rpc();
