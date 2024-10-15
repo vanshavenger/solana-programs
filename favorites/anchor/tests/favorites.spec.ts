@@ -5,7 +5,7 @@ import { Favorites } from "../target/types/favorites";
 import { startAnchor } from "solana-bankrun";
 import { BankrunProvider } from "anchor-bankrun";
 const IDL = require("../target/idl/favorites.json");
-import {expect, beforeAll, it, describe} from "bun:test"
+// import {expect, beforeAll, it, describe} from "bun:test"
 
 const favoriteAddress = new PublicKey(
   "58J7yWgkR9nBNseNj6TaRa1SHV1DwXPum3JbWNta9c6Z"

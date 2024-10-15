@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ");
+declare_id!("58J7yWgkR9nBNseNj6TaRa1SHV1DwXPum3JbWNta9c6Z");
 
 
 pub const ANCHOR_DISCRIMINATOR_SIZE: usize = 8; // when we save things to blockchain we will need 8 bytes + size of the thing which we are saving.

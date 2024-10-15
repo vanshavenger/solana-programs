@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useWallet } from '@solana/wallet-adapter-react'
-import { WalletButton } from '../solana/solana-provider'
-import { AppHero, ellipsify } from '../ui/ui-layout'
-import { ExplorerLink } from '../cluster/cluster-ui'
-import { useVotingdappProgram } from './votingdapp-data-access'
-import { VotingdappCreate, VotingdappList } from './votingdapp-ui'
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletButton } from "../solana/solana-provider";
+import { AppHero, ellipsify } from "../ui/ui-layout";
+import { ExplorerLink } from "../cluster/cluster-ui";
+import { useVotingdappProgram } from "./votingdapp-data-access";
+import { VotingdappCreate, VotingdappList } from "./votingdapp-ui";
 
 export default function VotingdappFeature() {
-  const { publicKey } = useWallet()
-  const { programId } = useVotingdappProgram()
+  const { publicKey } = useWallet();
+  const { programId } = useVotingdappProgram();
 
   return publicKey ? (
     <div>
@@ -20,7 +20,10 @@ export default function VotingdappFeature() {
         }
       >
         <p className="mb-6">
-          <ExplorerLink path={`account/${programId}`} label={ellipsify(programId.toString())} />
+          <ExplorerLink
+            path={`account/${programId}`}
+            label={ellipsify(programId.toString())}
+          />
         </p>
         <VotingdappCreate />
       </AppHero>
@@ -34,5 +37,5 @@ export default function VotingdappFeature() {
         </div>
       </div>
     </div>
-  )
+  );
 }

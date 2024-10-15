@@ -10,7 +10,7 @@ import { describe, it, expect, beforeAll } from "bun:test";
 const IDL = require("../target/idl/voting.json");
 
 const votingAddress = new PublicKey(
-  "AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ",
+  "EuZeWisqk8p1AyFPbML632ZfcCoxE9KwdWsX2aEbsbiA",
 );
 
 describe("voting-dapp", () => {
