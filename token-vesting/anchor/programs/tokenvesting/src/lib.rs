@@ -1,70 +1,69 @@
 #![allow(clippy::result_large_err)]
 
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
+pub const ANCHOR_DISCRIMINATOR: usize = 8;
 declare_id!("AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ");
 
 #[program]
 pub mod tokenvesting {
     use super::*;
 
-  pub fn close(_ctx: Context<CloseTokenvesting>) -> Result<()> {
-    Ok(())
-  }
-
-  pub fn decrement(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.tokenvesting.count = ctx.accounts.tokenvesting.count.checked_sub(1).unwrap();
-    Ok(())
-  }
-
-  pub fn increment(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.tokenvesting.count = ctx.accounts.tokenvesting.count.checked_add(1).unwrap();
-    Ok(())
-  }
-
-  pub fn initialize(_ctx: Context<InitializeTokenvesting>) -> Result<()> {
-    Ok(())
-  }
-
-  pub fn set(ctx: Context<Update>, value: u8) -> Result<()> {
-    ctx.accounts.tokenvesting.count = value.clone();
-    Ok(())
-  }
+    pub fn create_vesting_account(context: Context<CreateVestingAccount>, company_name: String) -> Result<()> {
+        *context.accounts.vesting_account = VestingAccount {
+          owner: context.accounts.signer.key(),
+          mint: context.accounts.mint.key(),
+          treasury_token_account: context.accounts.treasury_token_account.key(),
+          company_name,
+          treasury_bump: context.bumps.treasury_token_account,
+          bump: context.bumps.vesting_account,
+        };
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
-pub struct InitializeTokenvesting<'info> {
+#[instruction(company_name: String)]
+pub struct CreateVestingAccount<'info> {
+
   #[account(mut)]
-  pub payer: Signer<'info>,
+  pub signer: Signer<'info>,
 
   #[account(
-  init,
-  space = 8 + Tokenvesting::INIT_SPACE,
-  payer = payer
+    init,
+    payer = signer,
+    space = ANCHOR_DISCRIMINATOR + VestingAccount::INIT_SPACE,
+    seeds = [company_name.as_ref()],
+    bump
   )]
-  pub tokenvesting: Account<'info, Tokenvesting>,
+  pub vesting_account: Account<'info, VestingAccount>,
+
+  pub mint: InterfaceAccount<'info, Mint>,
+
+  #[account(
+      init,
+      payer = signer,
+      token::mint = mint,
+      token::authority = treasury_token_account,
+      seeds = [b"vesting_treasury", company_name.as_bytes()],
+      bump
+    )]
+  pub treasury_token_account: InterfaceAccount<'info, TokenAccount>,
+
   pub system_program: Program<'info, System>,
-}
-#[derive(Accounts)]
-pub struct CloseTokenvesting<'info> {
-  #[account(mut)]
-  pub payer: Signer<'info>,
+  pub token_program: Interface<'info, TokenInterface>,
 
-  #[account(
-  mut,
-  close = payer, // close account and return lamports to payer
-  )]
-  pub tokenvesting: Account<'info, Tokenvesting>,
-}
-
-#[derive(Accounts)]
-pub struct Update<'info> {
-  #[account(mut)]
-  pub tokenvesting: Account<'info, Tokenvesting>,
 }
 
 #[account]
 #[derive(InitSpace)]
-pub struct Tokenvesting {
-  count: u8,
+pub struct VestingAccount {
+    pub owner: Pubkey,
+    pub mint: Pubkey,
+    pub treasury_token_account: Pubkey,
+    #[max_len(50)]
+    pub company_name: String,
+    pub treasury_bump: u8,
+    pub bump: u8,
 }
