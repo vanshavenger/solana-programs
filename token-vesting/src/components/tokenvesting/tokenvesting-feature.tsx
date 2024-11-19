@@ -12,7 +12,7 @@ export default function TokenvestingFeature() {
   const { programId } = useTokenvestingProgram();
 
   return publicKey ? (
-    <div>
+    <div className="container mb-20">
       <AppHero
         title="Token Vesting Program"
         subtitle={
