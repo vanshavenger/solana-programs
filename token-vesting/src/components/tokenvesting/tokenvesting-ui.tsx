@@ -1,6 +1,6 @@
 "use client";
 
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { useMemo, useState } from "react";
 import { ellipsify } from "../ui/ui-layout";
 import { ExplorerLink } from "../cluster/cluster-ui";
@@ -117,8 +117,26 @@ function TokenvestingCard({ account }: { account: PublicKey }) {
   const [endTime, setEndTime] = useState<number>(0);
   const [cliffTime, setCliffTime] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [beneficiary, setBeneficiary] = useState<string>("");
 
   const companyName = useMemo(() => accountQuery.data?.companyName, [accountQuery.data?.companyName]);
+
+  const isFormValid = startTime && endTime && cliffTime && totalAmount && beneficiary;
+
+  const handleSubmit = () => {
+    if (!isFormValid) {
+      toast.error("Please fill out all fields");
+      return;
+    }
+
+    createEmployeeVesting.mutateAsync({
+      startTime,
+      endTime,
+      cliffTime,
+      totalAmount,
+      beneficiary
+    });
+  }
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
@@ -132,65 +150,44 @@ function TokenvestingCard({ account }: { account: PublicKey }) {
           >
             {companyName}
           </h2>
-          <div className="card-actions justify-around">
-            <button
-              className="btn btn-xs lg:btn-md btn-outline"
-              onClick={() => incrementMutation.mutateAsync()}
-              disabled={incrementMutation.isPending}
-            >
-              Increment
-            </button>
-            <button
-              className="btn btn-xs lg:btn-md btn-outline"
-              onClick={() => {
-                const value = window.prompt(
-                  "Set value to:",
-                  count.toString() ?? "0",
-                );
-                if (
-                  !value ||
-                  parseInt(value) === count ||
-                  isNaN(parseInt(value))
-                ) {
-                  return;
-                }
-                return setMutation.mutateAsync(parseInt(value));
-              }}
-              disabled={setMutation.isPending}
-            >
-              Set
-            </button>
-            <button
-              className="btn btn-xs lg:btn-md btn-outline"
-              onClick={() => decrementMutation.mutateAsync()}
-              disabled={decrementMutation.isPending}
-            >
-              Decrement
-            </button>
-          </div>
-          <div className="text-center space-y-4">
-            <p>
-              <ExplorerLink
-                path={`account/${account}`}
-                label={ellipsify(account.toString())}
+            <div className="card-actions justify-around">
+              <input 
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Start Time"
+                value={startTime}
+                onChange={(e) => setStartTime(parseInt(e.target.value))}
               />
-            </p>
-            <button
-              className="btn btn-xs btn-secondary btn-outline"
-              onClick={() => {
-                if (
-                  !window.confirm(
-                    "Are you sure you want to close this account?",
-                  )
-                ) {
-                  return;
-                }
-                return closeMutation.mutateAsync();
-              }}
-              disabled={closeMutation.isPending}
-            >
-              Close
-            </button>
+              <input 
+                className="input input-bordered w-full max-w-xs"
+                placeholder="End Time"
+                value={endTime}
+                onChange={(e) => setEndTime(parseInt(e.target.value))}
+              />
+              <input 
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Cliff Time"
+                value={cliffTime}
+                onChange={(e) => setCliffTime(parseInt(e.target.value))}
+              />
+              <input 
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Total Amount"
+                value={totalAmount}
+                onChange={(e) => setTotalAmount(parseInt(e.target.value))}
+              />
+              <input 
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Beneficiary"
+                value={beneficiary}
+                onChange={(e) => setBeneficiary(e.target.value)}
+              />
+              <button
+                className="btn btn-xs lg:btn-md btn-primary"
+                onClick={handleSubmit}
+                disabled={createEmployeeVesting.isPending || !isFormValid}
+              >
+                Create Employee Vesting
+              </button>
           </div>
         </div>
       </div>
