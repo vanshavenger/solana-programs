@@ -1,25 +1,68 @@
 "use client";
 
 import { Keypair, PublicKey } from "@solana/web3.js";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ellipsify } from "../ui/ui-layout";
 import { ExplorerLink } from "../cluster/cluster-ui";
 import {
   useTokenvestingProgram,
   useTokenvestingProgramAccount,
 } from "./tokenvesting-data-access";
+import { useWallet } from "@solana/wallet-adapter-react";
+import toast from "react-hot-toast";
 
 export function TokenvestingCreate() {
-  const { initialize } = useTokenvestingProgram();
+  const { createVestingAccount } = useTokenvestingProgram();
+  const [companyName, setCompanyName] = useState<string>("");
+  const [mint, setMint] = useState<string>("");
+  const { publicKey } = useWallet();
+
+  const isFormValid = companyName.length && mint.length;
+
+  const handleSubmit = () => {
+    if (!isFormValid || !publicKey) {
+      toast.error("Please fill out all fields");
+      return;
+    }
+
+    createVestingAccount.mutateAsync({ companyName, mint });
+  }
+
+  if (!publicKey) {
+    return (
+      <div className="alert alert-warning">
+        <span>
+          You need to connect your wallet to create a vesting account.
+        </span>
+      </div>
+    );
+  }
+
 
   return (
-    <button
+    <div>
+      <input 
+        className="input input-bordered w-full max-w-xs"
+        placeholder="Company Name"
+        value={companyName}
+        onChange={(e) => setCompanyName(e.target.value)}
+      />
+      <input 
+        className="input input-bordered w-full max-w-xs"
+        placeholder="Mint"
+        value={mint}
+        onChange={(e) => setMint(e.target.value)}
+      />
+
+      <button
       className="btn btn-xs lg:btn-md btn-primary"
-      onClick={() => initialize.mutateAsync(Keypair.generate())}
-      disabled={initialize.isPending}
+      onClick={handleSubmit}
+      disabled={createVestingAccount.isPending || !isFormValid}
     >
-      Create {initialize.isPending && "..."}
+      Create new vesting account {createVestingAccount.isPending && "..."}
     </button>
+    </div>
+    
   );
 }
 
@@ -65,18 +108,17 @@ export function TokenvestingList() {
 function TokenvestingCard({ account }: { account: PublicKey }) {
   const {
     accountQuery,
-    incrementMutation,
-    setMutation,
-    decrementMutation,
-    closeMutation,
+    createEmployeeVesting
   } = useTokenvestingProgramAccount({
     account,
   });
 
-  const count = useMemo(
-    () => accountQuery.data?.count ?? 0,
-    [accountQuery.data?.count],
-  );
+  const [startTime, setStartTime] = useState<number>(0);
+  const [endTime, setEndTime] = useState<number>(0);
+  const [cliffTime, setCliffTime] = useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+
+  const companyName = useMemo(() => accountQuery.data?.companyName, [accountQuery.data?.companyName]);
 
   return accountQuery.isLoading ? (
     <span className="loading loading-spinner loading-lg"></span>
@@ -88,7 +130,7 @@ function TokenvestingCard({ account }: { account: PublicKey }) {
             className="card-title justify-center text-3xl cursor-pointer"
             onClick={() => accountQuery.refetch()}
           >
-            {count}
+            {companyName}
           </h2>
           <div className="card-actions justify-around">
             <button
