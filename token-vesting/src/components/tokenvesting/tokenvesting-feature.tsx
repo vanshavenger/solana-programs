@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useWallet } from '@solana/wallet-adapter-react'
-import { WalletButton } from '../solana/solana-provider'
-import { AppHero, ellipsify } from '../ui/ui-layout'
-import { ExplorerLink } from '../cluster/cluster-ui'
-import { useTokenvestingProgram } from './tokenvesting-data-access'
-import { TokenvestingCreate, TokenvestingList } from './tokenvesting-ui'
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletButton } from "../solana/solana-provider";
+import { AppHero, ellipsify } from "../ui/ui-layout";
+import { ExplorerLink } from "../cluster/cluster-ui";
+import { useTokenvestingProgram } from "./tokenvesting-data-access";
+import { TokenvestingCreate, TokenvestingList } from "./tokenvesting-ui";
 
 export default function TokenvestingFeature() {
-  const { publicKey } = useWallet()
-  const { programId } = useTokenvestingProgram()
+  const { publicKey } = useWallet();
+  const { programId } = useTokenvestingProgram();
 
   return publicKey ? (
     <div>
@@ -20,7 +20,10 @@ export default function TokenvestingFeature() {
         }
       >
         <p className="mb-6">
-          <ExplorerLink path={`account/${programId}`} label={ellipsify(programId.toString())} />
+          <ExplorerLink
+            path={`account/${programId}`}
+            label={ellipsify(programId.toString())}
+          />
         </p>
         <TokenvestingCreate />
       </AppHero>
@@ -34,5 +37,5 @@ export default function TokenvestingFeature() {
         </div>
       </div>
     </div>
-  )
+  );
 }

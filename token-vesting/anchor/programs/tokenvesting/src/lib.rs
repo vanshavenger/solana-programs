@@ -7,7 +7,7 @@ use anchor_spl::{
 };
 
 pub const ANCHOR_DISCRIMINATOR: usize = 8;
-declare_id!("AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ");
+declare_id!("J1RkQLCjdpaRww8CD5TXu9nmkp2cd4odZ7AkH3j17Bko");
 
 #[program]
 pub mod tokenvesting {
@@ -60,7 +60,7 @@ pub mod tokenvesting {
             .end_time
             .saturating_sub(employee_account.start_time);
 
-        if total_vesting_time == 0 {
+        if total_vesting_time <= 0 {
             return Err(ErrorCode::InvalidVestingPeriod.into());
         }
 
@@ -78,7 +78,7 @@ pub mod tokenvesting {
 
         let claimable_amount = vested_amount.saturating_sub(employee_account.total_withdrawn);
 
-        if claimable_amount == 0 {
+        if claimable_amount <= 0 {
             return Err(ErrorCode::NothingToClaim.into());
         }
 
